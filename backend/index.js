@@ -1,0 +1,159 @@
+const express = require("express")
+const cors = require("cors")
+require("dotenv").config();
+const nodemailer = require("nodemailer");
+const mongoose = require("mongoose")
+const app = express();
+
+app.use(cors())
+app.use(express.json());
+
+//Login functionality 
+
+const PORT = process.env.PORT || 5000;
+
+app.get("/", (req, res) => {
+    res.send("Backend is running");
+});
+
+app.post("/login", async function(req, res) {
+    try {
+        const { email, password } = req.body;
+        const user = await users.findOne({
+            user: email,
+            pass: password
+        });
+        if (user) {
+            res.send({
+                success: true
+            });
+        } else {
+            res.send({
+                success: false,
+                message: "Invalid email or password"
+            });
+        }
+    } catch (error) {
+        console.log(error);
+        res.send({
+            success: false,
+            message: "Login failed"
+        });
+    }
+});
+
+
+//Signup functionality :
+
+app.post("/signup", async function (req, res) {
+    try {
+        const { email, password } = req.body;
+        const existingUser = await users.findOne({
+            email: email
+        });
+        if (existingUser) {
+            return res.send({
+                success: false,
+                message: "User already exists"
+            });
+        }
+        await users.insertOne({
+            user: email,
+            pass: password
+        });
+        res.send({
+            success: true,
+            message: "Signup successful"
+        });
+    } catch (error) {
+        console.log(error);
+        res.send({
+            success: false,
+            message: "Signup failed"
+        });
+    }
+});
+
+
+//Bulkmail functionality:
+
+mongoose.connect(process.env.MONGO_URL).then(function () {
+    console.log("Conneccted to DB");
+}).catch(function () {
+    console.log("Failed to Connect");
+})
+
+const credential = mongoose.model("credential", {}, "bulkmail");
+const mailhistory = mongoose.connection.collection("mailhistory");
+const users = mongoose.connection.collection("users");
+
+app.post("/sendmail", function (req, res) {
+    var msg = req.body.msg;
+    var emailList = req.body.emailList;
+    var subject = req.body.subject;
+
+    credential.find().then(function (data) {
+        const transporter = nodemailer.createTransport({
+            service: "gmail",
+            auth: {
+                user: data[0].toJSON().user,
+                pass: data[0].toJSON().pass,
+            },
+        });
+        new Promise(async function (resolve, reject) {
+            try {
+                for (var i = 0; i < emailList.length; i++) {
+                    await transporter.sendMail({
+                        from: "getaruth1416@gmail.com",
+                        to: emailList[i],
+                        subject: subject,
+                        text: msg
+                    })
+                    console.log("Email sent to : " + emailList[i]);
+                }
+                await mailhistory.insertOne({
+                    subject: subject,
+                    body: msg,
+                    recipients: emailList,
+                    status: "Success",
+                    createdAt: new Date()
+                });
+                resolve("success");
+            } catch (error) {
+                console.log(error);
+                try {
+                    await mailhistory.insertOne({
+                        subject: subject,
+                        body: msg,
+                        recipients: emailList,
+                        status: "Failed",
+                        createdAt: new Date()
+                    });
+                } catch (dberror) {
+                    console.log("DB error : ", dberror);
+                }
+                reject("Failed")
+            }
+        }).then(function () {
+            res.send(true);
+        }).catch(function () {
+            res.send(false);
+        })
+        console.log(data[0].toJSON())
+    }).catch(function (error) {
+        console.log(error)
+    })
+})
+
+// app.get("/history", async (req, res) => {
+//     try {
+//         const emails = await Email.find().sort({ createdAt: -1 });
+//         res.send(emails);
+//     } catch(error) {
+//         res.send([]);
+//     }
+// });
+
+app.listen(5000, function () {
+    console.log("Server started...")
+})
