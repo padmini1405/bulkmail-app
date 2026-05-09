@@ -16,7 +16,7 @@ app.get("/", (req, res) => {
     res.send("Backend is running");
 });
 
-app.post("/login", async function(req, res) {
+app.post("/login", async function (req, res) {
     try {
         const { email, password } = req.body;
         const user = await users.findOne({
@@ -153,6 +153,18 @@ app.post("/sendmail", function (req, res) {
 //         res.send([]);
 //     }
 // });
+
+app.get("/history", async (req, res) => {
+    try {
+        // Use 'mailhistory' instead of 'Email'
+        // Add .toArray() because this is a raw collection instance
+        const emails = await mailhistory.find().sort({ createdAt: -1 }).toArray();
+        res.status(200).send(emails);
+    } catch (error) {
+        console.error("Fetch Error:", error);
+        res.status(500).send([]);
+    }
+});
 
 app.listen(5000, function () {
     console.log("Server started...")

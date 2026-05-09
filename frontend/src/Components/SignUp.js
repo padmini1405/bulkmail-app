@@ -6,10 +6,49 @@ import { useNavigate } from "react-router-dom";
 function SignUp() {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
+    const [formError, setFormError] = useState("");
+    const [emailError, setEmailError] = useState("");
+    const [passwordError, setPasswordError] = useState("");
     const navigate = useNavigate();
 
     async function handleSignup(e) {
+
         e.preventDefault();
+        setFormError("");
+        setEmailError("");
+        setPasswordError("");
+
+        // Validation
+        if (!email.trim() || !password.trim()) {
+            setFormError("Please fill all fields");
+            return;
+        }
+
+        // Email format validation
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+        // email empty
+        if (!email) {
+            setEmailError("Email is required");
+            return;
+        }
+
+        if (!emailRegex.test(email)) {
+            setEmailError("Enter valid email address");
+            return;
+        }
+
+        // Password length validation
+        // password empty
+        if (!password) {
+            setPasswordError("Password is required");
+            return;
+        }
+        if (password.length < 6) {
+            setPasswordError("Password must be at least 6 characters");
+            return;
+        }
+
         try {
             const res = await axios.post(
                 `${process.env.REACT_APP_API_URL}/signup`,
@@ -43,6 +82,9 @@ function SignUp() {
                 </div>
                 <form className="signup-form" onSubmit={handleSignup}>
                     <div className="input-group">
+                        {formError && (
+                            <p className="form-error">{formError}</p>
+                        )}
                         <label>Email Address</label>
                         <input
                             type="email"
@@ -50,6 +92,9 @@ function SignUp() {
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                         />
+                        {emailError && (
+                            <p className="field-error">{emailError}</p>
+                        )}
                     </div>
                     <div className="input-group">
                         <div className="password-top">
@@ -61,31 +106,15 @@ function SignUp() {
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
                         />
+                        {passwordError && (
+                            <p className="field-error">{passwordError}</p>
+                        )}
                     </div>
                     <button type="submit" className="signup-btn">
                         Sign Up
                     </button>
-                    {/* <div className="divider">
-                        <span>OR</span>
-                    </div>  */}
                 </form>
-                {/* <p className="bottom-text">
-                    Already have an account?
-                    <span> Sign In</span>
-                </p> */}
             </div>
-            <footer className="footer">
-                <div className="footer-left">
-                    <h3>SpreadLink</h3>
-                    <p>© 2024 SpreadLink Enterprise Solutions. All rights reserved.</p>
-                </div>
-                <div className="footer-right">
-                    <a href="#">Privacy Policy</a>
-                    <a href="#">Terms of Service</a>
-                    <a href="#">API Documentation</a>
-                    <a href="#">System Status</a>
-                </div>
-            </footer>
         </div>
     )
 }

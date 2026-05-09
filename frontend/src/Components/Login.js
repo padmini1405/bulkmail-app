@@ -39,52 +39,65 @@ function Login() {
         }
     };
     return (
-        <div
-            className="hero-container"
-            style={{
-                backgroundImage: `url(${bgImage})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-            }}
-        >
-            <div className="navbar">
-                <h1 className="logo">SPREADLINK</h1>
-            </div>
-
-            <div className="hero-content">
-                <h1 className="main-heading">
-                    Can Send Unlimited Mails
+        <div className="hero-container">
+            <div className="logo-section1">
+                <h1 className="logo-text1">
+                    SpreadLink
                 </h1>
-
-                <h3 className="sub-heading">
-                    Corparate Internal Communication | Educational Institution | Community Groups
-                </h3>
-
-
-                <form className="login-form" onSubmit={handleSubmit}>
-                    {error && <p className="error">{error}</p>}
-
-                    <input
-                        type="email"
-                        placeholder="Email address"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                    />
-
-                    <input
-                        type="password"
-                        placeholder="Password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
-
-
-                    <button type="submit">Sign In</button>
-
-                    <h4 className="sign-up-link">
-                        Do you have an account ? <Link to="/signup"> Signup </Link>
-                    </h4>
-                </form>
+                <p className="tagline1">
+                    Enterprise-grade precision for your bulk communication.
+                </p>
+            </div>
+            <div className="login-wrapper">
+                <div className="login-card">
+                    <h1 className="login-title">
+                        Login
+                    </h1>
+                    <p className="login-subtitle">
+                        Welcome back! Please enter your details.
+                    </p>
+                    <form className="login-form" onSubmit={handleSubmit}>
+                        {error && (
+                            <p className="error">
+                                {error}
+                            </p>
+                        )}
+                        <div className="input-group">
+                            <label>Email</label>
+                            <input
+                                type="email"
+                                placeholder="test@gmail.com"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                            />
+                        </div>
+                        <div className="password-header">
+                            <label>Password</label>
+                        </div>
+                        <input
+                            type="password"
+                            placeholder="••••••••"
+                            value={password}
+                            onChange={(e) => setPassword(e.target.value)}
+                        />
+                        <button type="submit">
+                            Sign In
+                        </button>
+                        <div className="divider">
+                            <div className="line"></div>
+                            <span>
+                                OR
+                            </span>
+                            <div className="line"></div>
+                        </div>
+                        <h4 className="sign-up-link">
+                            Don't have an account?
+                            <Link to="/signup">
+                                <span>Sign up</span>
+                            </Link>
+                        </h4>
+                    </form>
+                </div>
             </div>
         </div>
     );
