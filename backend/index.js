@@ -97,16 +97,13 @@ app.post("/sendmail", async function (req, res) {
         var subject = req.body.subject;
 
         const transporter = nodemailer.createTransport({
-            host: "smtp.gmail.com",
-            port: 465,
-            secure: true,
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT),
+            secure: false, 
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
-            },
-            connectionTimeout: 60000,
-            greetingTimeout: 30000,
-            socketTimeout: 60000,
+            }
         });
         console.log("Trying SMTP connection...");
         await transporter.verify();
