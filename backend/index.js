@@ -99,28 +99,30 @@ app.post("/sendmail", async function (req, res) {
         const transporter = nodemailer.createTransport({
             host: process.env.SMTP_HOST,
             port: Number(process.env.SMTP_PORT),
-            secure: false, 
+            secure: false,
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
             },
-            connectionTimeout: 10000
+            tls: {
+                rejectUnauthorized: false
+            },
         });
-        // console.log("Trying SMTP connection...");
-        // await transporter.verify();
+        console.log("Trying SMTP connection...");
+        await transporter.verify();
         console.log("SMTP Connected Successfully");
 
-        for (const email of emailList) {
+        // for (const email of emailList) {
 
             await transporter.sendMail({
                 from: process.env.EMAIL_USER,
-                to: email,
+                to: process.env.EMAIL_USER,
                 subject: subject,
                 text: msg
             });
 
-            console.log("Email sent to :", email);
-        }
+            console.log("Email sent to :");
+        // }
 
         await mailhistory.insertOne({
             subject: subject,
