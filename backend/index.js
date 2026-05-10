@@ -5,7 +5,9 @@ const nodemailer = require("nodemailer");
 const mongoose = require("mongoose")
 const app = express();
 
-app.use(cors())
+app.use(cors({
+    origin: "*"
+}));
 app.use(express.json());
 
 //Login functionality 
@@ -49,7 +51,7 @@ app.post("/signup", async function (req, res) {
     try {
         const { email, password } = req.body;
         const existingUser = await users.findOne({
-            email: email
+            user: email
         });
         if (existingUser) {
             return res.send({
@@ -83,7 +85,6 @@ mongoose.connect(process.env.MONGO_URL).then(function () {
     console.log("Failed to Connect", err);
 })
 
-const credential = mongoose.connection.collection("bulkmail");
 const mailhistory = mongoose.connection.collection("mailhistory");
 const users = mongoose.connection.collection("users");
 
@@ -95,40 +96,32 @@ app.post("/sendmail", async function (req, res) {
         var emailList = req.body.emailList;
         var subject = req.body.subject;
 
-        const data = await credential.find().toArray();
-
-        console.log("Credential Data :", data);
-
-        if (data.length === 0) {
-            return res.send(false);
-        }
-
         const transporter = nodemailer.createTransport({
             host: "smtp.gmail.com",
-            port: 587,
-            secure: false,
+            port: 465,
+            secure: true,
             auth: {
-                user: data[0].user,
-                pass: data[0].pass,
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
             },
-            tls: {
-                rejectUnauthorized: false
-            },
-            connectionTimeout: 20000
+            connectionTimeout: 60000,
+            greetingTimeout: 30000,
+            socketTimeout: 60000,
         });
+        console.log("Trying SMTP connection...");
         await transporter.verify();
         console.log("SMTP Connected Successfully");
 
-        for (var i = 0; i < emailList.length; i++) {
+        for (const email of emailList) {
 
             await transporter.sendMail({
-                from: data[0].user,
-                to: emailList[i],
+                from: process.env.EMAIL_USER,
+                to: email,
                 subject: subject,
                 text: msg
             });
 
-            console.log("Email sent to :", emailList[i]);
+            console.log("Email sent to :", email);
         }
 
         await mailhistory.insertOne({
@@ -163,15 +156,6 @@ app.post("/sendmail", async function (req, res) {
     }
 });
 
-// app.get("/history", async (req, res) => {
-//     try {
-//         const emails = await Email.find().sort({ createdAt: -1 });
-//         res.send(emails);
-//     } catch(error) {
-//         res.send([]);
-//     }
-// });
-
 app.get("/history", async (req, res) => {
     try {
         // Use 'mailhistory' instead of 'Email'
@@ -184,6 +168,6 @@ app.get("/history", async (req, res) => {
     }
 });
 
-app.listen(5000, function () {
+app.listen(PORT, function () {
     console.log("Server started...")
 })
