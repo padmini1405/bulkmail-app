@@ -104,12 +104,20 @@ app.post("/sendmail", async function (req, res) {
         }
 
         const transporter = nodemailer.createTransport({
-            service: "gmail",
+            host: "smtp.gmail.com",
+            port: 587,
+            secure: false,
             auth: {
                 user: data[0].user,
                 pass: data[0].pass,
             },
+            tls: {
+                rejectUnauthorized: false
+            },
+            connectionTimeout: 20000
         });
+        await transporter.verify();
+        console.log("SMTP Connected Successfully");
 
         for (var i = 0; i < emailList.length; i++) {
 
@@ -135,7 +143,13 @@ app.post("/sendmail", async function (req, res) {
 
     } catch (error) {
 
-        console.log("MAIL ERROR :", error);
+        console.log("MAIL ERROR FULL :", {
+            message: error.message,
+            code: error.code,
+            response: error.response,
+            responseCode: error.responseCode,
+            command: error.command
+        });
 
         await mailhistory.insertOne({
             subject: req.body.subject,
