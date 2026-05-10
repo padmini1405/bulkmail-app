@@ -1,7 +1,6 @@
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import bgImage from "../Asserts/Images/background_img.jpg";
 import { Link } from "react-router-dom";
 
 function Login() {
