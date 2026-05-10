@@ -103,10 +103,11 @@ app.post("/sendmail", async function (req, res) {
             auth: {
                 user: process.env.EMAIL_USER,
                 pass: process.env.EMAIL_PASS
-            }
+            },
+            connectionTimeout: 10000
         });
-        console.log("Trying SMTP connection...");
-        await transporter.verify();
+        // console.log("Trying SMTP connection...");
+        // await transporter.verify();
         console.log("SMTP Connected Successfully");
 
         for (const email of emailList) {
