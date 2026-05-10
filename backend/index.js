@@ -14,23 +14,6 @@ app.use(express.json());
 
 const PORT = process.env.PORT || 5000;
 
-const mailhistory = mongoose.connection.collection("mailhistory");
-const users = mongoose.connection.collection("users");
-
-const transporter = nodemailer.createTransport({
-    host: process.env.SMTP_HOST,
-    port: Number(process.env.SMTP_PORT),
-    secure: true,
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
-    },
-    tls: {
-        rejectUnauthorized: false
-    },
-    connectionTimeout: 10000
-});
-
 app.get("/", (req, res) => {
     res.send("Backend is running");
 });
@@ -102,24 +85,43 @@ mongoose.connect(process.env.MONGO_URL).then(function () {
     console.log("Failed to Connect", err);
 })
 
-
+const mailhistory = mongoose.connection.collection("mailhistory");
+const users = mongoose.connection.collection("users");
 
 app.post("/sendmail", async function (req, res) {
-    const msg = req.body.msg;
-    const emailList = req.body.emailList;
-    const subject = req.body.subject;
+
     try {
-        // console.log("Trying SMTP connection...");
-        // await transporter.verify();
-        // console.log("SMTP Connected Successfully");
+
+        var msg = req.body.msg;
+        var emailList = req.body.emailList;
+        var subject = req.body.subject;
+
+        const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: Number(process.env.SMTP_PORT),
+            secure: false,
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS
+            },
+            tls: {
+                rejectUnauthorized: false
+            },
+            connectionTimeout: 10000
+        });
+        console.log("Trying SMTP connection...");
+        await transporter.verify();
+        console.log("SMTP Connected Successfully");
 
         for (const email of emailList) {
+
             await transporter.sendMail({
                 from: process.env.EMAIL_USER,
                 to: email,
                 subject: subject,
                 text: msg
             });
+
             console.log("Email sent to :", email);
         }
 
