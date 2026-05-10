@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import eyeIcon from "../Asserts/Images/eye.png";
 
 function History() {
     const [history, setHistory] = useState([]);
+    const [selectedMail, setSelectedMail] = useState(null);
 
     useEffect(() => {
-        axios.get("http://localhost:5000/history")
+        axios.get(`${process.env.REACT_APP_API_URL}/history`)
             .then((res) => {
                 setHistory(res.data);
             })
@@ -25,6 +27,7 @@ function History() {
                                 <th className="history-th">MAIL SUBJECT</th>
                                 <th className="history-th">RECIPIENTS</th>
                                 <th className="history-th">STATUS</th>
+                                <th className="history-th">ACTIONS</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -43,13 +46,25 @@ function History() {
                                         <td className="history-td">{item.recipients?.length || 0}</td>
                                         <td className="history-td">
                                             <span
-                                                className={`status-badge ${(item.status || "Sent") === "Sent"
-                                                        ? "status-sent"
-                                                        : "status-failed"
+                                                className={`status-badge ${(item.status === "Sent" || item.status === "Success")
+                                                    ? "status-sent"
+                                                    : "status-failed"
                                                     }`}
                                             >
                                                 ● {item.status || 'Sent'}
                                             </span>
+                                        </td>
+                                        <td className="history-td">
+                                            <button
+                                                className="view-btn"
+                                                onClick={() => setSelectedMail(item)}
+                                            >
+                                                <img
+                                                    src={eyeIcon}
+                                                    alt="view"
+                                                    className="view-icon"
+                                                />
+                                            </button>
                                         </td>
                                     </tr>
                                 ))
@@ -64,6 +79,50 @@ function History() {
                     </table>
                 </div>
             </div>
+            {/* POPUP MODAL */}
+
+            {selectedMail && (
+
+                <div className="modal-overlay">
+
+                    <div className="mail-modal">
+
+                        <div className="modal-header">
+
+                            <h2>Mail Details</h2>
+
+                            <button
+                                className="close-btn"
+                                onClick={() => setSelectedMail(null)}
+                            >
+                                ×
+                            </button>
+
+                        </div>
+
+                        <div className="modal-content">
+
+                            <div className="mail-section">
+                                <label>Subject</label>
+                                <div className="mail-box">
+                                    {selectedMail.subject}
+                                </div>
+                            </div>
+
+                            <div className="mail-section">
+                                <label>Message Body</label>
+                                <div className="mail-body">
+                                    {selectedMail.message || selectedMail.body}
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            )}
         </div>
     );
 }

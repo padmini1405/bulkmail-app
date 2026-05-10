@@ -1,6 +1,14 @@
-/* ----------------------------------------------new code ---------------------------------------- */
-
 /* sign up page  */
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  /* Prevents tiny horizontal scrollbars */
+}
 
 * {
   margin: 0;
@@ -10,7 +18,8 @@
 
 .signup-page {
   min-height: 100vh;
-  background-color: #f4f6fb;
+  background:
+    linear-gradient(135deg, #eef2ff 0%, #516b85 45%, #8c8c90 100%);
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -20,7 +29,7 @@
 
 .signup-card {
   width: 420px;
-  background: white;
+  background: whitesmoke;
   border: 1px solid #dcdfe6;
   border-radius: 8px;
   padding: 35px;
@@ -147,9 +156,13 @@
 
 .hero-container {
   width: 100%;
-  height: 80%;
-  background: #eef2ff;
+  min-height: 100vh;
+  background:
+    linear-gradient(135deg, #edf4ff 0%, #5c8bc1 50%, #dbeafe 100%);
   position: relative;
+  margin: 0;
+  padding: 0;
+  flex-direction: column;
 }
 
 .navbar {
@@ -167,12 +180,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-grow: 1;
+  padding: 20px;
 }
 
 .login-card {
   width: 100%;
   max-width: 500px;
-  background: #ffffff;
+  background: whitesmoke;
   border: 1px solid #e5e7eb;
   border-radius: 10px;
   padding: 30px;
@@ -287,8 +302,8 @@
 
 .logo-section1 {
   text-align: center;
-  margin-bottom: 20px;
-  margin-top: 20px;
+  padding-top: 20px;
+  /* margin-top: 20px; */
 }
 
 .logo-text1 {
@@ -345,7 +360,8 @@
 .campaign-page {
   width: 100%;
   min-height: 100vh;
-  background: #f5f7fb;
+  background:
+    linear-gradient(135deg, #afbee4 0%, #455d76 45%, #adcfd9 100%);
   padding: 30px;
   box-sizing: border-box;
   font-family: Arial, Helvetica, sans-serif;
@@ -356,7 +372,7 @@
   height: auto;
   min-height: 90px;
   padding: 15px 25px;
-  background: white;
+  background: whitesmoke;
   border-radius: 14px;
   box-sizing: border-box;
   display: flex;
@@ -391,7 +407,7 @@
   height: 45px;
   padding: 0 24px;
   border: 1px solid #d1d5db;
-  background: white;
+  background: whitesmoke;
   border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
@@ -431,7 +447,7 @@
 
 .campaign-card {
   flex: 1;
-  background: white;
+  background: whitesmoke;
   border-radius: 16px;
   padding: 30px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
@@ -611,6 +627,10 @@
   .upload-mail-text {
     color: gray;
   }
+
+  .bulkmail-logo {
+    font-size: 25px;
+  }
 }
 
 @media (max-width: 480px) {
@@ -619,7 +639,7 @@
   }
 
   .bulkmail-logo {
-    font-size: 24px;
+    font-size: 23px;
   }
 
   .upload-title,
@@ -702,6 +722,160 @@
   padding: 20px;
   text-align: center;
   color: #64748b;
+}
+
+.view-icon {
+  width: 18px;
+  height: 18px;
+  object-fit: contain;
+}
+
+/* model popup  */
+
+/* VIEW BUTTON */
+
+.view-btn {
+  border: none;
+  background: #eff6ff;
+  color: #2563eb;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: 0.3s;
+}
+
+.view-btn:hover {
+  background: #2563eb;
+  color: white;
+  transform: scale(1.05);
+}
+
+/* MODAL */
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+  padding: 20px;
+}
+
+.mail-modal {
+  width: 100%;
+  max-width: 700px;
+  background: white;
+  border-radius: 24px;
+  overflow: hidden;
+  animation: popup 0.25s ease;
+  box-shadow:
+    0 20px 50px rgba(15, 23, 42, 0.15),
+    0 4px 20px rgba(15, 23, 42, 0.08);
+}
+
+@keyframes popup {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.modal-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e2e8f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.modal-header h2 {
+  font-size: 22px;
+  color: #0f172a;
+}
+
+.close-btn {
+  border: none;
+  background: #f1f5f9;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 24px;
+  transition: 0.3s;
+}
+
+.close-btn:hover {
+  background: #e2e8f0;
+}
+
+.modal-content {
+  padding: 24px;
+}
+
+.mail-section {
+  margin-bottom: 24px;
+}
+
+.mail-section label {
+  display: block;
+  margin-bottom: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #475569;
+}
+
+.mail-box {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 14px;
+  border-radius: 14px;
+  color: #0f172a;
+  font-weight: 600;
+}
+
+.mail-body {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  padding: 18px;
+  border-radius: 14px;
+  color: #334155;
+  line-height: 1.7;
+  max-height: 400px;
+  overflow-y: auto;
+  white-space: pre-wrap;
+}
+
+/* MOBILE */
+
+@media (max-width: 768px) {
+
+  .mail-modal {
+    border-radius: 18px;
+  }
+
+  .modal-content {
+    padding: 18px;
+  }
+
+  .modal-header {
+    padding: 18px;
+  }
+
 }
 
 /* MOBILE */

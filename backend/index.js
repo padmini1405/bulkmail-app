@@ -79,71 +79,75 @@ app.post("/signup", async function (req, res) {
 
 mongoose.connect(process.env.MONGO_URL).then(function () {
     console.log("Conneccted to DB");
-}).catch(function () {
-    console.log("Failed to Connect");
+}).catch(function (err) {
+    console.log("Failed to Connect", err);
 })
 
-const credential = mongoose.model("credential", {}, "bulkmail");
+const credential = mongoose.connection.collection("bulkmail");
 const mailhistory = mongoose.connection.collection("mailhistory");
 const users = mongoose.connection.collection("users");
 
-app.post("/sendmail", function (req, res) {
-    var msg = req.body.msg;
-    var emailList = req.body.emailList;
-    var subject = req.body.subject;
+app.post("/sendmail", async function (req, res) {
 
-    credential.find().then(function (data) {
+    try {
+
+        var msg = req.body.msg;
+        var emailList = req.body.emailList;
+        var subject = req.body.subject;
+
+        const data = await credential.find().toArray();
+
+        console.log("Credential Data :", data);
+
+        if (data.length === 0) {
+            return res.send(false);
+        }
+
         const transporter = nodemailer.createTransport({
             service: "gmail",
             auth: {
-                user: data[0].toJSON().user,
-                pass: data[0].toJSON().pass,
+                user: data[0].user,
+                pass: data[0].pass,
             },
         });
-        new Promise(async function (resolve, reject) {
-            try {
-                for (var i = 0; i < emailList.length; i++) {
-                    await transporter.sendMail({
-                        from: "getaruth1416@gmail.com",
-                        to: emailList[i],
-                        subject: subject,
-                        text: msg
-                    })
-                    console.log("Email sent to : " + emailList[i]);
-                }
-                await mailhistory.insertOne({
-                    subject: subject,
-                    body: msg,
-                    recipients: emailList,
-                    status: "Success",
-                    createdAt: new Date()
-                });
-                resolve("success");
-            } catch (error) {
-                console.log(error);
-                try {
-                    await mailhistory.insertOne({
-                        subject: subject,
-                        body: msg,
-                        recipients: emailList,
-                        status: "Failed",
-                        createdAt: new Date()
-                    });
-                } catch (dberror) {
-                    console.log("DB error : ", dberror);
-                }
-                reject("Failed")
-            }
-        }).then(function () {
-            res.send(true);
-        }).catch(function () {
-            res.send(false);
-        })
-        console.log(data[0].toJSON())
-    }).catch(function (error) {
-        console.log(error)
-    })
-})
+
+        for (var i = 0; i < emailList.length; i++) {
+
+            await transporter.sendMail({
+                from: data[0].user,
+                to: emailList[i],
+                subject: subject,
+                text: msg
+            });
+
+            console.log("Email sent to :", emailList[i]);
+        }
+
+        await mailhistory.insertOne({
+            subject: subject,
+            body: msg,
+            recipients: emailList,
+            status: "Success",
+            createdAt: new Date()
+        });
+
+        res.send(true);
+
+    } catch (error) {
+
+        console.log("MAIL ERROR :", error);
+
+        await mailhistory.insertOne({
+            subject: req.body.subject,
+            body: req.body.msg,
+            recipients: req.body.emailList,
+            status: "Failed",
+            createdAt: new Date()
+        });
+
+        res.send(false);
+    }
+});
 
 // app.get("/history", async (req, res) => {
 //     try {

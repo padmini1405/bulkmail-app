@@ -49,7 +49,7 @@ function BulkMail() {
         if (hasError) return;
 
         setStatus(true);
-        axios.post("http://localhost:5000/sendmail", { subject: subject, msg: msg, emailList: emailList })
+        axios.post( `${process.env.REACT_APP_API_URL}/sendmail`, { subject: subject, msg: msg, emailList: emailList })
             .then(function (data) {
                 if (data.data === true) {
                     alert("Email Sent Successfully");
