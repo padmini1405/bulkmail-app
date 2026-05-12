@@ -196,4 +196,4 @@ function BulkMail() {
         </div>
     );
 }
-export default BulkMail
+export default BulkMail     

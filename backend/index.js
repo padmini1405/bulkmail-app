@@ -1,13 +1,16 @@
 const express = require("express")
 const cors = require("cors")
 require("dotenv").config();
-const nodemailer = require("nodemailer");
 const mongoose = require("mongoose")
+const { Resend } = require("resend");
+
 const app = express();
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 app.use(cors({
     origin: "*"
 }));
+
 app.use(express.json());
 
 //Login functionality 
@@ -91,39 +94,22 @@ const users = mongoose.connection.collection("users");
 app.post("/sendmail", async function (req, res) {
 
     try {
-
-        var msg = req.body.msg;
-        var emailList = req.body.emailList;
-        var subject = req.body.subject;
-
-        const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: Number(process.env.SMTP_PORT),
-            secure: false,
-            auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS
-            },
-            tls: {
-                rejectUnauthorized: false
-            },
-            connectionTimeout: 10000
-        });
-        console.log("Trying SMTP connection...");
-        await transporter.verify();
-        console.log("SMTP Connected Successfully");
-
-        for (const email of emailList) {
-
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                to: email,
-                subject: subject,
-                text: msg
-            });
-
-            console.log("Email sent to :", email);
-        }
+        const msg = req.body.msg;
+        const emailList = req.body.emailList;
+        const subject = req.body.subject;
+    
+        const response = await Promise.all(
+            emailList.map(email =>
+                resend.emails.send({
+                    from: "onboarding@resend.dev",
+                    to: email,
+                    subject,
+                    text: msg
+                })
+            )
+        );
+        console.log("Response : " ,response);
+        console.log("Email sent successfully");
 
         await mailhistory.insertOne({
             subject: subject,
@@ -136,7 +122,6 @@ app.post("/sendmail", async function (req, res) {
         res.send(true);
 
     } catch (error) {
-
         console.log("MAIL ERROR FULL :", {
             message: error.message,
             code: error.code,
@@ -159,8 +144,6 @@ app.post("/sendmail", async function (req, res) {
 
 app.get("/history", async (req, res) => {
     try {
-        // Use 'mailhistory' instead of 'Email'
-        // Add .toArray() because this is a raw collection instance
         const emails = await mailhistory.find().sort({ createdAt: -1 }).toArray();
         res.status(200).send(emails);
     } catch (error) {
