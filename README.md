@@ -45,6 +45,6 @@
     - Mail View Popup Modal
 
 ## How to view
-You can access my website by visiting this [link] .Feel free to explore the content and get in touch.
+You can access my website by visiting this https://bulkmail-app-rjxg.vercel.app/ .Feel free to explore the content and get in touch.
 
 👩‍💻 Developed by Padmini K
